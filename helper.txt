@@ -1,0 +1,38 @@
+open turn-server.html
+
+Structure
+webrtc-turn-flask/
+├── app.py                  ✅ Flask app
+├── requirements.txt        ✅ Dependencies
+├── templates/
+│   └── index.html          ✅ HTML UI
+├── static/
+│   └── main.js             ✅ WebRTC + TURN logic
+
+
+
+RUN
+python app.py
+
+
+To test TURN SERVER
+turnserver -a -o -v -n --user testuser:testpass --realm localhost
+
+
+When you don't see video on cross networks.
+Potential Causes:
+- your Public IP might have changed. So, goto goole and see Public IP. If changed, go to
+turnserver.conf file, and update latest public IP (i.e external-ip) and save it.
+-If still its not running, 
+Then open F660 ( your Router Login),
+Goto application, see PORT FORWARDING. Update your local ip (ipconfig getifaddr en0  in MAC)
+Ipconfig in windows
+
+Now, you should be able to see - Video starts streaming on cross platforms.
+Thank you
+
+
+
+rq - Redis to process video to store on cloud.
+
+user rq_launcher for MAC. 

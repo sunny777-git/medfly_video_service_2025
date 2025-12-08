@@ -1,0 +1,21 @@
+fastapi
+uvicorn[standard]
+
+# Templates & Static Files
+jinja2
+aiofiles
+python-multipart
+
+# Socket.IO (async)
+python-socketio[asyncio_server]
+
+# Background Queue (RQ with Redis)
+redis
+rq
+
+# AWS SDK + Env vars
+boto3
+python-dotenv
+
+# Supabase client
+supabase
