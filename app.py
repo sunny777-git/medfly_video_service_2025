@@ -12,7 +12,8 @@ from sup_upload_tasks import upload_to_supabase
 load_dotenv()
 
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
+# socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -107,19 +108,21 @@ def save_recording():
     print(f"Saved locally: {file_path}")
 
     # Enqueue background job
-    upload_queue.enqueue(upload_to_supabase, file_path, filename)
+    # upload_queue.enqueue(upload_to_supabase, file_path, filename)
 
     return jsonify({"filename": filename})
 
 
 @app.route("/uploaded/<filename>")
 def uploaded(filename):
-    public_url = (
-        f"{os.getenv('SUPABASE_URL')}"
-        f"/storage/v1/object/public/{os.getenv('SUPABASE_BUCKET')}/{filename}"
-    )
-    print("public url:", public_url)
-    return jsonify({"url": public_url})
+    # public_url = (
+    #     f"{os.getenv('SUPABASE_URL')}"
+    #     f"/storage/v1/object/public/{os.getenv('SUPABASE_BUCKET')}/{filename}"
+    # )
+    # print("public url:", public_url)
+    # return jsonify({"url": public_url})
+    local_url = url_for('serve_temp_video', filename=filename, _external=True)
+    return jsonify({"url": local_url})
 
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5000, debug=True)

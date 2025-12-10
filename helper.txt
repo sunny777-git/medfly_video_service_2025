@@ -21,12 +21,12 @@ turnserver -a -o -v -n --user testuser:testpass --realm localhost
 
 When you don't see video on cross networks.
 Potential Causes:
-- your Public IP might have changed. So, goto goole and see Public IP. If changed, go to
+- your Public IP might have changed. So, goto google and see Public IP. If changed, go to
 turnserver.conf file, and update latest public IP (i.e external-ip) and save it.
 -If still its not running, 
-Then open F660 ( your Router Login),
-Goto application, see PORT FORWARDING. Update your local ip (ipconfig getifaddr en0  in MAC)
-Ipconfig in windows
+Then open F660 ( your Router Login), admin, E447B39CCC76
+Goto application, see PORT FORWARDING. Update your local ip (ipconfig getifaddr en0  in MAC) Ex:192.168.1.7
+Ipconfig in windows 
 
 Now, you should be able to see - Video starts streaming on cross platforms.
 Thank you

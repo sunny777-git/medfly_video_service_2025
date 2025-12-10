@@ -1,7 +1,8 @@
 console.log("✅ video.js loaded");
 
 /* Socket and State */
-const SIGNALING_SERVER = "https://7576-115-98-148-169.ngrok-free.app";
+const SIGNALING_SERVER = "https://madilynn-engaged-adaptively.ngrok-free.dev";
+
 const socket = io(SIGNALING_SERVER, { transports: ["websocket"], secure: true });
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -63,71 +64,71 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* Toggle Stream */
-  function toggleStream() {
-    const video = document.getElementById("localVideo");
-    const img = document.getElementById("defaultImage");
-    const btn = document.getElementById("startBtn");
-    const icon = btn.querySelector("i");
-    const deviceId = document.getElementById("deviceSelect")?.value;
-  
-    if (!isStreaming) {
-      if (!deviceId) {
-        alert("Please select a device first.");
-        return;
-      }
-  
-      navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: deviceId } }, audio: true })
-        .then(stream => {
-          mediaStream = stream;
-          video.srcObject = stream;
-          video.controls = false;
-          document.getElementById("generateLinkBtn").disabled = false; 
-          document.getElementById("snapshotBtn").disabled = false;
-          document.querySelector('.video-controls').style.display = 'flex';
-          document.getElementById("recordBtn").disabled = false;
-          document.getElementById("liveBadge").style.display = 'flex';
-          img.style.display = "none";
-          document.querySelector('.overlay').style.display = 'flex';
-          icon.className = "fas fa-pause";
-          isStreaming = true;
-  
-          // ✅ Generate room only if not set already
-          if (!room) {
-            room = deviceId + '-' + Math.random().toString(36).substr(2, 5);
-          }
-  
-          socket.emit("join", { room, broadcaster: true });
-          console.log("📢 Sent join with room:", room);
-  
-          liveSeconds = 0;
-          clearInterval(liveInterval);
-          liveInterval = setInterval(() => {
-            liveSeconds++;
-            document.getElementById("liveLabel").textContent = `LIVE • ${formatTime(liveSeconds)}`;
-            document.getElementById("customProgress").style.width = `${(liveSeconds % 60) * (100 / 60)}%`;
-          }, 1000);
-        })
-        .catch(error => {
-          console.error("❌ Error accessing media devices:", error);
-          alert("Could not start stream. Check permissions or device access.");
-        });
-  
-    } else {
-      mediaStream.getTracks().forEach(track => track.stop());
-      video.srcObject = null;
-      document.getElementById("generateLinkBtn").disabled = true;  
-      document.getElementById("snapshotBtn").disabled = true;
-      document.getElementById("recordBtn").disabled = true;
-      document.getElementById("liveBadge").style.display = 'none';
-      document.querySelector('.overlay').style.display = 'none';
-      img.style.display = "block";
-      icon.className = "fas fa-play";
-      isStreaming = false;
-      clearInterval(liveInterval);
-      document.getElementById("customProgress").style.width = '0%';
+function toggleStream() {
+  const video = document.getElementById("localVideo");
+  const img = document.getElementById("defaultImage");
+  const btn = document.getElementById("startBtn");
+  const icon = btn.querySelector("i");
+  const deviceId = document.getElementById("deviceSelect")?.value;
+
+  if (!isStreaming) {
+    if (!deviceId) {
+      alert("Please select a device first.");
+      return;
     }
+
+    navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: deviceId } }, audio: true })
+      .then(stream => {
+        mediaStream = stream;
+        video.srcObject = stream;
+        video.controls = false;
+        document.getElementById("generateLinkBtn").disabled = false;
+        document.getElementById("snapshotBtn").disabled = false;
+        document.querySelector('.video-controls').style.display = 'flex';
+        document.getElementById("recordBtn").disabled = false;
+        document.getElementById("liveBadge").style.display = 'flex';
+        img.style.display = "none";
+        document.querySelector('.overlay').style.display = 'flex';
+        icon.className = "fas fa-pause";
+        isStreaming = true;
+
+        // ✅ Generate room only if not set already
+        if (!room) {
+          room = deviceId + '-' + Math.random().toString(36).substr(2, 5);
+        }
+
+        socket.emit("join", { room, broadcaster: true });
+        console.log("📢 Sent join with room:", room);
+
+        liveSeconds = 0;
+        clearInterval(liveInterval);
+        liveInterval = setInterval(() => {
+          liveSeconds++;
+          document.getElementById("liveLabel").textContent = `LIVE • ${formatTime(liveSeconds)}`;
+          document.getElementById("customProgress").style.width = `${(liveSeconds % 60) * (100 / 60)}%`;
+        }, 1000);
+      })
+      .catch(error => {
+        console.error("❌ Error accessing media devices:", error);
+        alert("Could not start stream. Check permissions or device access.");
+      });
+
+  } else {
+    mediaStream.getTracks().forEach(track => track.stop());
+    video.srcObject = null;
+    document.getElementById("generateLinkBtn").disabled = true;
+    document.getElementById("snapshotBtn").disabled = true;
+    document.getElementById("recordBtn").disabled = true;
+    document.getElementById("liveBadge").style.display = 'none';
+    document.querySelector('.overlay').style.display = 'none';
+    img.style.display = "block";
+    icon.className = "fas fa-play";
+    isStreaming = false;
+    clearInterval(liveInterval);
+    document.getElementById("customProgress").style.width = '0%';
   }
-  
+}
+
 /* Toggle Recording */
 function toggleRecording() {
   const recordBtn = document.getElementById("recordBtn");
@@ -162,9 +163,9 @@ function toggleRecording() {
     };
 
     recSeconds = 0;
-    mediaRecorder.start();  
+    mediaRecorder.start();
     recordBtn.innerHTML = `<i class="fas fa-stop"></i> Recording • 00:00`;
-    
+
     recInterval = setInterval(() => {
       recSeconds++;
       const formatted = formatTime(recSeconds);
@@ -173,7 +174,7 @@ function toggleRecording() {
 
     console.log("⏺️ Recording started");
   } else {
-    mediaRecorder.stop(); 
+    mediaRecorder.stop();
     clearInterval(recInterval);
     recordBtn.innerHTML = `<i class="fas fa-circle"></i> Record`;
     console.log("⏹️ Recording stopped");

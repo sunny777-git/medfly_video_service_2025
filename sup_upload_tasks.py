@@ -5,11 +5,11 @@ from dotenv import load_dotenv
 from datetime import timedelta
 load_dotenv()
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE")
-SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET")
+# SUPABASE_URL = os.getenv("SUPABASE_URL")
+# SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE")
+# SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET")
 
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+# supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 def upload_to_supabase(local_path, filename):
     print(f"[upload_to_supabase] Uploading: {local_path} as {filename}")
     try:

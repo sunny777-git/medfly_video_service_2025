@@ -1,107 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Medstone Application</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="/static/style.css">
   <style>
     body.viewer-only .video-grid {
       justify-content: center;
       align-items: center;
     }
+
     body.viewer-only {
       background: #000;
     }
+
     body.viewer-only .app-container {
       max-width: 100vw;
       margin: 0;
       padding: 0;
     }
   </style>
-</head> 
+</head>
+
 <body>
-<div class="app-container">
-  <div class="main-area">
-    <!-- Broadcaster Top Bar -->
-    <div id="broadcasterUI">
-      <div class="top-bar" id="top-bar">
-        <select id="deviceSelect"><option value="">Loading Devices...</option></select>
-        <button id="generateLinkBtn" class="btn btn-danger" disabled><i class="fas fa-copy"></i></button>
+  <div class="app-container">
+    <div class="main-area">
+      <!-- Broadcaster Top Bar -->
+      <div id="broadcasterUI">
+        <div class="top-bar" id="top-bar">
+          <select id="deviceSelect">
+            <option value="">Loading Devices...</option>
+          </select>
+          <button id="generateLinkBtn" class="btn btn-danger" disabled><i class="fas fa-copy"></i></button>
+        </div>
+      </div>
+
+      <!-- Video Section -->
+      <div class="video-grid">
+        <img id="defaultImage" src="/static/default_banner.png" class="placeholder-image" alt="Default" />
+        <video id="localVideo" autoplay muted playsinline></video>
+
+        <div class="overlay">
+          <div class="live-badge" id="liveBadge"><i class="fas fa-circle"></i> <span id="liveLabel">LIVE • 00:00</span>
+          </div>
+          <div class="rec-badge" id="recBadge"><i class="fas fa-dot-circle"></i> <span id="recLabel">REC • 00:00</span>
+          </div>
+        </div>
+
+        <div class="video-controls">
+          <div class="left-controls">
+            <button id="startBtn" onclick="toggleStream()" title="Start"><i class="fas fa-play"></i></button>
+            <button onclick="toggleRecording()" id="recordBtn" title="Record" disabled><i
+                class="fas fa-circle"></i></button>
+            <button id="snapshotBtn" onclick="captureSnapshot()" title="Snapshot" disabled><i
+                class="fas fa-camera"></i></button>
+          </div>
+          <div class="right-controls">
+            <button onclick="toggleFullscreen()" title="Fullscreen"><i class="fas fa-expand"></i></button>
+          </div>
+          <div class="progress-bar-wrapper">
+            <div class="custom-progress" id="customProgress"></div>
+            <div class="rec-progress" id="recProgress"></div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Video Section -->
-    <div class="video-grid">
-      <img id="defaultImage" src="/static/default_banner.png"   class="placeholder-image" alt="Default"/>
-      <video id="localVideo" autoplay muted playsinline></video>
-
-      <div class="overlay">
-        <div class="live-badge" id="liveBadge"><i class="fas fa-circle"></i> <span id="liveLabel">LIVE • 00:00</span></div>
-        <div class="rec-badge" id="recBadge"><i class="fas fa-dot-circle"></i> <span id="recLabel">REC • 00:00</span></div>
+    <!-- Sidebar Tabs -->
+    <div class="sidebar-tabs" id="tabsSection">
+      <div class="tab-nav">
+        <button class="tab-button active" onclick="showTab('snapshots')"><i class="fas fa-camera"></i></button>
+        <button class="tab-button" onclick="showTab('recordings')"><i class="fas fa-video"></i></button>
       </div>
-
-      <div class="video-controls">
-        <div class="left-controls">
-          <button id="startBtn" onclick="toggleStream()" title="Start"><i class="fas fa-play"></i></button>
-          <button onclick="toggleRecording()" id="recordBtn" title="Record" disabled><i class="fas fa-circle"></i></button>
-          <button id="snapshotBtn" onclick="captureSnapshot()" title="Snapshot" disabled><i class="fas fa-camera"></i></button>
-        </div>
-        <div class="right-controls">
-          <button onclick="toggleFullscreen()" title="Fullscreen"><i class="fas fa-expand"></i></button>
-        </div>
-        <div class="progress-bar-wrapper">
-          <div class="custom-progress" id="customProgress"></div>
-          <div class="rec-progress" id="recProgress"></div>
-        </div>
+      <div class="tab-content">
+        <div id="snapshots" class="tab-pane snapshot-list" style="display:none;"></div>
+        <div id="recordings" class="tab-pane recording-list"></div>
       </div>
     </div>
   </div>
 
-  <!-- Sidebar Tabs -->
-  <div class="sidebar-tabs" id="tabsSection">
-    <div class="tab-nav">
-      <button class="tab-button active" onclick="showTab('snapshots')"><i class="fas fa-camera"></i></button>
-      <button class="tab-button" onclick="showTab('recordings')"><i class="fas fa-video"></i></button>
-    </div>
-    <div class="tab-content">
-      <div id="snapshots" class="tab-pane snapshot-list" style="display:none;"></div>
-      <div id="recordings" class="tab-pane recording-list"></div>
-    </div>
-  </div>
-</div>
+  <!-- Scripts -->
+  <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
+  <script>
 
-<!-- Scripts -->
-<script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
-<script>
+    if (window.location.search.includes("room=")) {
+      document.body.classList.add("viewer-only");
 
-  if (window.location.search.includes("room=")) {
-    document.body.classList.add("viewer-only");
+      const broadcasterUI = document.getElementById("broadcasterUI");
+      if (broadcasterUI) broadcasterUI.remove();
 
-    const broadcasterUI = document.getElementById("broadcasterUI");
-    if (broadcasterUI) broadcasterUI.remove();
+      const tabsSection = document.getElementById("tabsSection");
+      if (tabsSection) tabsSection.remove();
 
-    const tabsSection = document.getElementById("tabsSection");
-    if (tabsSection) tabsSection.remove();
+      const videoControls = document.querySelector(".video-controls");
+      if (videoControls) videoControls.remove();
 
-    const videoControls = document.querySelector(".video-controls");
-    if (videoControls) videoControls.remove();
+      const defaultImage = document.getElementById("defaultImage");
+      if (defaultImage) defaultImage.remove();
 
-    const defaultImage = document.getElementById("defaultImage");
-    if (defaultImage) defaultImage.remove();
+      const recordBtn = document.getElementById("recordBtn");
+      if (recordBtn) recordBtn.remove();
 
-    const recordBtn = document.getElementById("recordBtn");
-    if (recordBtn) recordBtn.remove();
+      const liveBadge = document.getElementById("liveBadge");
+      if (liveBadge) liveBadge.style.display = "none";
 
-    const liveBadge = document.getElementById("liveBadge");
-    if (liveBadge) liveBadge.style.display = "none";
-
-    const recBadge = document.getElementById("recBadge");
-    if (recBadge) recBadge.style.display = "none";
-  }
-</script>
-<script src="{{ url_for('static', filename='video.js') }}"></script>
+      const recBadge = document.getElementById("recBadge");
+      if (recBadge) recBadge.style.display = "none";
+    }
+  </script>
+  <script src="{{ url_for('static', filename='video.js') }}"></script>
 </body>
+
 </html>

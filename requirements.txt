@@ -1,6 +1,6 @@
 fastapi
 uvicorn[standard]
-
+flask
 # Templates & Static Files
 jinja2
 aiofiles
