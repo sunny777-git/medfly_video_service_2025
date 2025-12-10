@@ -2,6 +2,8 @@ fastapi
 uvicorn[standard]
 flask
 flask_socketio
+eventlet
+
 # Templates & Static Files
 jinja2
 aiofiles
