@@ -1,8 +1,9 @@
 fastapi
 uvicorn[standard]
-flask
-flask_socketio
+gunicorn
 eventlet
+flask-socketio
+flask
 
 # Templates & Static Files
 jinja2
